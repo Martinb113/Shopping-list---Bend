@@ -3,7 +3,7 @@ require('dotenv').config();
 // Then, require mongoose
 const mongoose = require('mongoose');
 // Connect to MongoDB using environment variable
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
@@ -26,7 +26,7 @@ app.use('/api/items', itemsRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Shopping List API v2');
+  res.send('Shopping List API v3');
 });
 
 // Global error handling middleware
