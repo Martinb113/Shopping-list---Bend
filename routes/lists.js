@@ -25,13 +25,81 @@ router.post('/', async (req, res) => {
 
 
 // Get Lists by User
-router.get('/user/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
+    // Logic to retrieve shopping lists for a user
     try {
         const lists = await List.find({ owner: req.params.userId });
-        res.status(200).send(lists);
+        res.status(200).json({
+            lists,
+            success: true,
+            message: 'Shopping lists retrieved successfully'
+        });
     } catch (error) {
-        res.status(500).send('Error in retrieving lists.');
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
+//Update List
+router.put('/:listId', async (req, res) => {
+    // Logic to update a shopping list
+    try {
+        const updatedList = await List.findByIdAndUpdate(
+            req.params.listId,
+            { $set: req.body },
+            { new: true }
+        );
+        res.status(200).json({
+            success: true,
+            message: 'Shopping list updated successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Delete Shopping List
+router.delete('/:listId', async (req, res) => {
+    // Logic to delete a shopping list
+    try {
+        await List.findByIdAndDelete(req.params.listId);
+        res.status(200).json({
+            success: true,
+            message: 'Shopping list deleted successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+//Add Item to Shopping List
+router.post('/', async (req, res) => {
+    // Logic to add an item to a shopping list
+    const newItem = new Item({
+        name: req.body.name,
+        quantity: req.body.quantity,
+        listId: req.body.listId,
+        owner: req.body.owner
+    });
+    try {
+        await newItem.save();
+        res.status(201).json({
+            itemId: newItem._id,
+            success: true,
+            message: 'Item added to shopping list successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+//Mark Item as Completed
+router.put('/:itemId', async (req, res) => {
+    // Logic to mark an item as completed
+    try {
+        await Item.findByIdAndUpdate(
+            req.params.itemId,
+            { $set: { completed: req.body.completed
+
+                
 module.exports = router;
