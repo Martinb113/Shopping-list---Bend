@@ -1,14 +1,24 @@
 const express = require('express');
 const List = require('../models/list'); // Replace when change if path occures
+const User = require('../models/user');
 const router = express.Router();
+
+// I dont have a middleware to authenticate and set req.user, this needsto be sorted
+// ...
 
 // Create a List
 router.post('/', async (req, res) => {
+    
+    // Verify if the user is authenticated
+    if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    
     // Logic to create a new shopping list, will need to apudate later on
     
     const newList = new List({
         title: req.body.title,
-        owner: req.body.owner
+        owner: req.user._id
     });
     try {
         await newList.save();
@@ -43,11 +53,16 @@ router.get('/:userId', async (req, res) => {
 router.put('/:listId', async (req, res) => {
     // Logic to update a shopping list
     try {
-        const updatedList = await List.findByIdAndUpdate(
-            req.params.listId,
-            { $set: req.body },
-            { new: true }
-        );
+        const list = await List.findById(req.params.listId);
+        if (!list) {
+            return res.status(404).json({ success: false, message: 'List not found' });
+        }
+
+        // Check if the current user is the owner of the list
+        if (list.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: 'Only the owner can update the list' });
+        }
+        
         res.status(200).json({
             success: true,
             message: 'Shopping list updated successfully'
@@ -101,5 +116,5 @@ router.put('/:itemId', async (req, res) => {
             req.params.itemId,
             { $set: { completed: req.body.completed
 
-                
+
 module.exports = router;

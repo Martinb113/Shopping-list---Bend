@@ -4,7 +4,7 @@
    - Basic server setup with `server.js`.
    - Installation of primary packages like `express`, `mongoose`, `body-parser`, and `cors`.
 
-2. **Database Connection**
+2. **Database Connection** - still not working properly
    - MongoDB connection established using Mongoose in `server.js`.
    - Usage of environment variables for secure connection string handling.
 
@@ -21,17 +21,32 @@
 6. **Complete Models Implementation**
    - Finalize and implement the `List` and `Item` models as per the provided schema.
 
-### Tasks to be Completed
+7. **Route Logic Implementation** - Partially implemented
+    - Implement the CRUD operations and business logic in the routes (`users.js`, `lists.js`)
+
+8. **User Authentication and Authorization**
+   - Implement user registration and login functionality.
+
+9. **Roles and Permissions**
+   - Partially done - inlist I have done this for `Create a List` & `Update a List`.
+
+10. **Error Handling** - Partially done
+   - Implement comprehensive error handling across the application.
+
+
+
+
+### Tasks to be Completed, redone or checked
 
 2. **Route Logic Implementation**
-   - Implement the CRUD operations and business logic in the routes (`users.js`, `lists.js`, `items.js`).
+   - Implement the CRUD operations and business logic in the routes (`items.js`).
 
 3. **User Authentication and Authorization**
-   - Implement user registration and login functionality.
    - Setup JSON Web Token (JWT) or another authentication mechanism for protecting routes.
 
 4. **Roles and Permissions**
-   - Implement logic to handle 'Owner' and 'Contributor' roles in the `List` model.
+   - Implement logic to handle 'Owner' and 'Contributor' roles in the `List` model
+        - remaining: `Delete a List`, `Add Item to Shopping List`, `Mark Item as Completed`.
    - Ensure that API routes check for proper permissions based on these roles.
 
 5. **Input Validation and Sanitization**
