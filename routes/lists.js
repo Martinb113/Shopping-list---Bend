@@ -1,21 +1,28 @@
 const express = require('express');
-const List = require('../models/list'); // Replace with your actual List model path
+const List = require('../models/list'); // Replace when change if path occures
 const router = express.Router();
 
 // Create a List
 router.post('/', async (req, res) => {
+    // Logic to create a new shopping list, will need to apudate later on
+    
+    const newList = new List({
+        title: req.body.title,
+        owner: req.body.owner
+    });
     try {
-        const list = new List({ 
-            title: req.body.title, 
-            owner: req.body.owner 
-            // Add other fields as necessary
+        await newList.save();
+        res.status(201).json({
+            listId: newList._id,
+            title: newList.title,
+            success: true,
+            message: 'Shopping list created successfully'
         });
-        await list.save();
-        res.status(201).send(list);
     } catch (error) {
-        res.status(500).send('Error in creating list.');
+        res.status(500).json({ success: false, message: error.message });
     }
 });
+
 
 // Get Lists by User
 router.get('/user/:userId', async (req, res) => {

@@ -11,11 +11,11 @@ const listSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  participants: [{
+  contributors: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }]
-  // Add any additional fields as per your requirement
+  // I am able to add anything here, Contributors for example
 });
 
 const List = mongoose.model('List', listSchema);

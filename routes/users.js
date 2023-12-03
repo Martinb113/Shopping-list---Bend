@@ -1,18 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const User = require('../models/user'); // Replace with your actual User model path
+const User = require('../models/user'); // Replace with your actual User model path, in case I will be moving staff arround
 const router = express.Router();
 
 // User Registration
 router.post('/register', async (req, res) => {
     try {
-        // Check if user already exists
+        // Check if user already exists, I need to understand what exactly this is checking (Name, email?)
         const existingUser = await User.findOne({ username: req.body.username });
         if (existingUser) {
             return res.status(400).send('User already exists.');
         }
 
-        // Hash the password
+        // Hash the password, this I need to learn more
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 

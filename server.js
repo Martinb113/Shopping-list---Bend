@@ -26,7 +26,7 @@ app.use('/api/items', itemsRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Shopping List API v3');
+  res.send('Shopping List API v4');
 });
 
 // Global error handling middleware
