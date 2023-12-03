@@ -18,9 +18,10 @@
 5. **Environment Configuration**
    - Setup of `.env` file for managing environment variables like database connection strings.
 
-### Tasks to be Completed
-1. **Complete Models Implementation**
+6. **Complete Models Implementation**
    - Finalize and implement the `List` and `Item` models as per the provided schema.
+
+### Tasks to be Completed
 
 2. **Route Logic Implementation**
    - Implement the CRUD operations and business logic in the routes (`users.js`, `lists.js`, `items.js`).
@@ -41,18 +42,3 @@
 
 7. **Testing**
    - Test all API endpoints, ensuring they work as expected and handle errors properly.
-
-8. **Refactoring and Code Cleanup**
-   - Refine and optimize the code for better performance and maintainability.
-
-9. **API Documentation**
-   - Document the API endpoints to facilitate easy usage and integration.
-
-10. **Deployment Preparation**
-    - Prepare the application for deployment, including setting up any required production environment configurations.
-
-11. **Deployment**
-    - Deploy the application to a suitable hosting platform.
-
-12. **Continuous Monitoring and Updates**
-    - Monitor the application post-deployment and make necessary updates or bug fixes.
