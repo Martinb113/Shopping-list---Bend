@@ -98,7 +98,9 @@ router.put('/change-password/:userId', async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req
+        const hashedPassword = await bcrypt.hash(req);
+    }
+);
 
 
 module.exports = router;
