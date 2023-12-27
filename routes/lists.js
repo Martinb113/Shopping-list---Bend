@@ -7,24 +7,23 @@ const router = express.Router();
 // ...
 
 // Create a List
-router.post('/', async (req, res) => {
-    
-    // Verify if the user is authenticated
+router.post('/create', async (req, res) => {
     if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    
-    // Logic to create a new shopping list, will need to apudate later on
-    
+
+    const { title, contributors, items } = req.body;
     const newList = new List({
-        title: req.body.title,
-        owner: req.user._id
+        title,
+        owner: req.user._id, // Owner's ID from authenticated user
+        contributors: contributors || [], // Optional contributors
+        items: items || [] // Optional items
     });
+
     try {
         await newList.save();
         res.status(201).json({
-            listId: newList._id,
-            title: newList.title, 
+            list: newList,
             success: true,
             message: 'Shopping list created successfully'
         });
@@ -34,11 +33,25 @@ router.post('/', async (req, res) => {
 });
 
 
+
 // Get Lists by User
-router.get('/:userId', async (req, res) => {
-    // Logic to retrieve shopping lists for a user
+router.get('/list', async (req, res) => {
     try {
-        const lists = await List.find({ owner: req.params.userId });
+        const userId = req.user._id; // Assuming user ID is available in the request
+
+        // Fetch lists where user is the owner
+        const ownerLists = await List.find({ owner: userId });
+        
+        // Fetch lists where user is a contributor
+        const contributorLists = await List.find({ contributors: userId });
+
+        // Combine the lists
+        const lists = {
+            ownerLists: ownerLists,
+            contributorLists: contributorLists
+        };
+
+        // Respond with success message
         res.status(200).json({
             lists,
             success: true,
@@ -49,77 +62,119 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-//Update List
-router.put('/:listId', async (req, res) => {
-    // Logic to update a shopping list
+/*
+Viewing Detailed List Information: 
+    When a user selects a shopping list from a list of summaries to view its full details, 
+    including all items and their statuses.
+Editing a List: 
+    Before editing a list, the application needs to retrieve its current details so the user can see what changes are to be made.
+*/
+router.get('/get/:id', async (req, res) => {
     try {
-        const list = await List.findById(req.params.listId);
+        const listId = req.params.id;
+
+        // Find the list by ID
+        const list = await List.findById(listId);
         if (!list) {
             return res.status(404).json({ success: false, message: 'List not found' });
         }
 
-        // Check if the current user is the owner of the list
-        if (list.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ success: false, message: 'Only the owner can update the list' });
+        // Respond with the list and success message
+        res.status(200).json({
+            list,
+            success: true,
+            message: 'Shopping list retrieved successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+//Update List
+router.put('/update/:id', async (req, res) => {
+    try {
+        const listId = req.params.id;
+        const userId = req.user._id; // User ID from authentication
+
+        // Find the list and verify owner
+        const list = await List.findById(listId);
+        if (!list) {
+            return res.status(404).json({ success: false, message: 'List not found' });
         }
-        
-        res.status(200).json({
-            success: true,
-            message: 'Shopping list updated successfully'
-        });
+
+        if (list.owner.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        // Update the list with new data
+        const { title, items } = req.body;
+        if (title) list.title = title;
+        if (items) list.items = items;
+
+        await list.save();
+        res.status(200).json({ success: true, message: 'Shopping list updated successfully', list });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// Delete Shopping List
-router.delete('/:listId', async (req, res) => {
-    // Logic to delete a shopping list
+
+// Delete Shopping List - If the user is the owner, proceed with the deletion. Otherwise, return an unauthorized error.
+router.delete('/delete/:id', async (req, res) => {
     try {
-        await List.findByIdAndDelete(req.params.listId);
-        res.status(200).json({
-            success: true,
-            message: 'Shopping list deleted successfully'
-        });
+        const listId = req.params.id;
+        const userId = req.user._id; // Assuming user ID is available from authentication
+
+        // Find the list by ID
+        const list = await List.findById(listId);
+        if (!list) {
+            return res.status(404).json({ success: false, message: 'List not found' });
+        }
+
+        // Check if the user is the owner
+        if (list.owner.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        // Delete the list
+        await list.remove();
+        res.status(200).json({ success: true, message: 'Shopping list deleted successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-//Add Item to Shopping List
-router.post('/', async (req, res) => {
-    // Logic to add an item to a shopping list
-    const newItem = new Item({
-        name: req.body.name,
-        quantity: req.body.quantity,
-        listId: req.body.listId,
-        owner: req.body.owner
-    });
-    try {
-        await newItem.save();
-        res.status(201).json({
-            itemId: newItem._id,
-            success: true,
-            message: 'Item added to shopping list successfully'
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
+
+
 
 
 //Mark Item as Completed
-router.put('/:itemId', async (req, res) => {
+router.put('/archive/:id', async (req, res) => {
     try {
-        await Item.findByIdAndUpdate(
-            req.params.itemId,
-            { $set: { completed: req.body.completed } }
-        );
-        res.status(200).json({ message: 'Item marked as completed.' });
+        const listId = req.params.id;
+        const userId = req.user._id; // User ID from authentication
+
+        // Find the list and verify owner or contributor
+        const list = await List.findById(listId);
+        if (!list) {
+            return res.status(404).json({ success: false, message: 'List not found' });
+        }
+
+        if (list.owner.toString() !== userId.toString() && !list.contributors.includes(userId)) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        // Update the list status to 'Archived'
+        list.status = 'Archived';
+        await list.save();
+
+        res.status(200).json({ success: true, message: 'Shopping list marked as archived' });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while marking the item as completed.' });
+        res.status(500).json({ success: false, message: error.message });
     }
 });
+
 
 
 module.exports = router;
