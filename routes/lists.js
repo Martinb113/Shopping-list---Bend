@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
         await newList.save();
         res.status(201).json({
             listId: newList._id,
-            title: newList.title,
+            title: newList.title, 
             success: true,
             message: 'Shopping list created successfully'
         });
@@ -110,11 +110,16 @@ router.post('/', async (req, res) => {
 
 //Mark Item as Completed
 router.put('/:itemId', async (req, res) => {
-    // Logic to mark an item as completed
     try {
         await Item.findByIdAndUpdate(
             req.params.itemId,
-            { $set: { completed: req.body.completed
+            { $set: { completed: req.body.completed } }
+        );
+        res.status(200).json({ message: 'Item marked as completed.' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while marking the item as completed.' });
+    }
+});
 
 
 module.exports = router;

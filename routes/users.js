@@ -91,16 +91,35 @@ router.delete('/:userId', async (req, res) => {
 // Change Password
 router.put('/change-password/:userId', async (req, res) => {
     try {
+        // Find the user by ID
         const user = await User.findById(req.params.userId);
+
+        // Check if the old password provided matches the stored password
         const validPassword = await bcrypt.compare(req.body.oldPassword, user.password);
+
+        // If the old password is incorrect, return an error response
         if (!validPassword) {
             return res.status(400).json({ success: false, message: 'Incorrect old password' });
         }
 
+        // Generate a new salt and hash the new password
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req);
+        const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+        // Update the user's password with the new hashed password
+        user.password = hashedPassword;
+
+        // Save the updated user object
+        await user.save();
+
+        // Return a success response
+        return res.status(200).json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error(error);
+        res.status(500).json({ success: false, message: 'An error occurred while changing the password' });
     }
-);
+});
 
 
 module.exports = router;
