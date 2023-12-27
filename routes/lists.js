@@ -8,14 +8,15 @@ const router = express.Router();
 
 // Create a List
 router.post('/create', async (req, res) => {
-    if (!req.user) {
+    /*if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
+    */
 
     const { title, contributors, items } = req.body;
     const newList = new List({
         title,
-        owner: req.user._id, // Owner's ID from authenticated user
+        //owner: req.user._id, // Owner's ID from authenticated user
         contributors: contributors || [], // Optional contributors
         items: items || [] // Optional items
     });
@@ -91,7 +92,7 @@ router.get('/get/:id', async (req, res) => {
 });
 
 
-//Update List
+//Update List - Use the List Update Endpoint for Major Changes -  efficient for bulk iTEM changes.
 router.put('/update/:id', async (req, res) => {
     try {
         const listId = req.params.id;
@@ -144,10 +145,6 @@ router.delete('/delete/:id', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
-
-
-
-
 
 //Mark Item as Completed
 router.put('/archive/:id', async (req, res) => {
