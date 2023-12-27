@@ -1,55 +1,54 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-//const jwt = require('jsonwebtoken'); Maybe needed later, I still havent figured out how this works, need to ask or findout
-const User = require('../models/user'); // Replace with your actual User model path, in case I will be moving staff arround
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 const router = express.Router();
 
 // User Registration
 router.post('/register', async (req, res) => {
     try {
-        // Check if user already exists, I need to understand what exactly this is checking (Name, email?)
-        const existingUser = await User.findOne({ username: req.body.username });
+        // Check if the email is already in use
+        const existingUser = await User.findOne({ email: req.body.email });
         if (existingUser) {
-            return res.status(400).send('User already exists.');
+            return res.status(400).json({ success: false, message: 'Email already in use' });
         }
 
-        // Hash the password, this I need to learn more
+        // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-        // Create a new user
+        // Create a new user with email and optional nickname
         const user = new User({ 
-            username: req.body.username, 
+            email: req.body.email,
+            nickname: req.body.nickname || null,
             password: hashedPassword 
         });
         await user.save();
 
-        res.status(201).json({ userId: user._id, username: user.username, success: true, message: 'User registered successfully' });
+        res.status(201).json({ userId: user._id, success: true, message: 'User registered successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error in registering user' });
     }
 });
 
-// User Login (pseudo-code, needs jwt for token generation)
+// User Login (using JWT for token generation)
 router.post('/login', async (req, res) => {
     try {
-        // Check if user exists
-        const user = await User.findOne({ username: req.body.username });
+        // Check if user exists with the given email
+        const user = await User.findOne({ email: req.body.email });
         if (!user) {
-            return res.status(400).json({ success: false, message: 'Invalid username or password' });
+            return res.status(400).json({ success: false, message: 'Invalid email or password' });
         }
 
         // Check password
         const validPassword = await bcrypt.compare(req.body.password, user.password);
         if (!validPassword) {
-            return res.status(400).json({ success: false, message: 'Invalid username or password' });
+            return res.status(400).json({ success: false, message: 'Invalid email or password' });
         }
 
-        // Generate token (use jsonwebtoken)
-    //  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    //  res.status(200).json({ userId: user._id, token, success: true, message: 'Login successful' });
-        
-        // res.status(200).send({ token });
+        // Generate a JWT token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json({ userId: user._id, token, success: true, message: 'Login successful' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error in user login' });
     }
@@ -68,10 +67,14 @@ router.get('/profile/:userId', async (req, res) => {
     }
 });
 
-// Update User Profile
+// Update User Profile (only nickname can be updated, email remains the same)
 router.put('/profile/:userId', async (req, res) => {
     try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.userId, req.body, { new: true }).select('-password');
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.userId, 
+            { nickname: req.body.nickname || null }, 
+            { new: true }
+        ).select('-password');
         res.status(200).json({ userId: updatedUser._id, success: true, message: 'Profile updated successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error updating profile' });
@@ -88,7 +91,7 @@ router.delete('/:userId', async (req, res) => {
     }
 });
 
-// Change Password
+// Change Password (requires old and new password)
 router.put('/change-password/:userId', async (req, res) => {
     try {
         // Find the user by ID
@@ -120,6 +123,5 @@ router.put('/change-password/:userId', async (req, res) => {
         res.status(500).json({ success: false, message: 'An error occurred while changing the password' });
     }
 });
-
 
 module.exports = router;
