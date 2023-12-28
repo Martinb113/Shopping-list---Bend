@@ -3,9 +3,21 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
+
 
 // User Registration
-router.post('/register', async (req, res) => {
+router.post('/register', [
+    check('email').isEmail(),
+    check('password').isLength({ min: 6 }),
+    // Add more validation rules as needed
+  ], async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
     try {
         // Check if the email is already in use
         const existingUser = await User.findOne({ email: req.body.email });
@@ -27,7 +39,8 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({ userId: user._id, success: true, message: 'User registered successfully' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error in registering user' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error in registering user HELO' });
     }
 });
 

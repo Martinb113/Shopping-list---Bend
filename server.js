@@ -3,7 +3,10 @@ require('dotenv').config();
 // Then, require mongoose
 const mongoose = require('mongoose');
 // Connect to MongoDB using environment variable
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})   //=mongodb+srv: //martinb113:<password>@cluster0.wzely8a.mongodb.net/?retryWrites=true&w=majority)
   .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
@@ -15,6 +18,8 @@ const listsRoutes = require('./routes/lists');
 const itemsRoutes = require('./routes/items');
 const app = express();
 const port = process.env.PORT || 3000;
+
+
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -37,5 +42,5 @@ app.use((err, req, res, next) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running mmm at http://localhost:${port}`);
 });
