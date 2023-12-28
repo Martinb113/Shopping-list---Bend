@@ -10,6 +10,7 @@ const { check, validationResult } = require('express-validator');
 router.post('/register', [
     check('email').isEmail(),
     check('password').isLength({ min: 6 }),
+    check('username').not().isEmpty(),
     // Add more validation rules as needed
   ], async (req, res) => {
     // Check for validation errors
@@ -32,7 +33,7 @@ router.post('/register', [
         // Create a new user with email and optional nickname
         const user = new User({ 
             email: req.body.email,
-            nickname: req.body.nickname || null,
+            username: req.body.username, 
             password: hashedPassword 
         });
         await user.save();
