@@ -32,8 +32,8 @@ router.post('/register', [
 
         // Create a new user with email and optional nickname
         const user = new User({ 
-            email: req.body.email,
             username: req.body.username, 
+            email: req.body.email,
             password: hashedPassword 
         });
         await user.save();
