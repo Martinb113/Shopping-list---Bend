@@ -86,7 +86,7 @@ router.put('/profile/:userId', async (req, res) => {
     try {
         const updatedUser = await User.findByIdAndUpdate(
             req.params.userId, 
-            { nickname: req.body.nickname || null }, 
+            { username: req.body.username || null }, 
             { new: true }
         ).select('-password');
         res.status(200).json({ userId: updatedUser._id, success: true, message: 'Profile updated successfully' });

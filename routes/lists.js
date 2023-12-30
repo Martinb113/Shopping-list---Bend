@@ -13,13 +13,13 @@ router.post('/create', async (req, res) => {
     }
     */
 
-    const { title, contributors, items } = req.body;
-    const newList = new List({
-        title,
-        //owner: req.user._id, // Owner's ID from authenticated user
-        contributors: contributors || [], // Optional contributors
-        items: items || [] // Optional items
-    });
+const { title, contributors, items, owner } = req.body;
+const newList = new List({
+    title,
+    owner, // Owner's ID from request body
+    contributors: contributors || [], // Optional contributors
+    items: items || [] // Optional items
+});
 
     try {
         await newList.save();
