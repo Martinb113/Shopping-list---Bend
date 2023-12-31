@@ -3,13 +3,15 @@ const List = require('../models/list'); // Replace when change if path occures
 const User = require('../models/user');
 const router = express.Router();
 
+/*require('dotenv').config();
+
 // I dont have a middleware to authenticate and set req.user, this needsto be sorted
 // ...
-/*
+
 const authenticate = async (req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '');
-        const decoded = jwt.verify(token, 'your_jwt_secret');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
 
         if (!user) {
@@ -20,6 +22,7 @@ const authenticate = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
+        console.error(error);
         res.status(401).send({ error: 'Please authenticate.' });
     }
 };
@@ -29,14 +32,14 @@ router.post('/create', authenticate, async (req, res) => {
     /*if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    */
+*/
 
 router.post('/create', async (req, res) => {
 
     const { title, contributors, items, owner } = req.body;
     const newList = new List({
         title,
-        owner, // Owner's ID from request body
+        owner, //req.user._id, // Owner's ID from request body
         contributors: contributors || [], // Optional contributors
         items: items || [] // Optional items
     });
@@ -116,26 +119,25 @@ router.get('/get/:id', async (req, res) => {
 //Update List - Use the List Update Endpoint for Major Changes -  efficient for bulk iTEM changes.
 router.put('/update/:id', async (req, res) => {
     try {
-        const listId = req.params.id;
-        const userId = req.user._id; // User ID from authentication
+        const { id } = req.params;
+        const { items, ...updates } = req.body;
 
-        // Find the list and verify owner
-        const list = await List.findById(listId);
+        const list = await List.findById(id);
         if (!list) {
             return res.status(404).json({ success: false, message: 'List not found' });
         }
 
-        if (list.owner.toString() !== userId.toString()) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        // Update fields other than items
+        Object.keys(updates).forEach((update) => list[update] = updates[update]);
+
+        // Add new items to the items array
+        if (items) {
+            list.items = [...(list.items || []), ...items];
         }
 
-        // Update the list with new data
-        const { title, items } = req.body;
-        if (title) list.title = title;
-        if (items) list.items = items;
-
         await list.save();
-        res.status(200).json({ success: true, message: 'Shopping list updated successfully', list });
+
+        res.status(200).json({ success: true, message: 'List updated successfully', list });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -143,10 +145,11 @@ router.put('/update/:id', async (req, res) => {
 
 
 // Delete Shopping List - If the user is the owner, proceed with the deletion. Otherwise, return an unauthorized error.
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id',  async (req, res) => {
     try {
         const listId = req.params.id;
-        const userId = req.user._id; // Assuming user ID is available from authentication
+        const userId = req.body.userId; // Get user ID from request body
+        //const userId = req.user._id; // Assuming user ID is available from authentication
 
         // Find the list by ID
         const list = await List.findById(listId);
@@ -160,9 +163,11 @@ router.delete('/delete/:id', async (req, res) => {
         }
 
         // Delete the list
-        await list.remove();
+        await List.findByIdAndDelete(listId);
         res.status(200).json({ success: true, message: 'Shopping list deleted successfully' });
     } catch (error) {
+        
+        console.log(error); // Add this line
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -171,7 +176,9 @@ router.delete('/delete/:id', async (req, res) => {
 router.put('/archive/:id', async (req, res) => {
     try {
         const listId = req.params.id;
-        const userId = req.user._id; // User ID from authentication
+        const userId = req.body.userId; // Get user ID from request body
+        //const userId = req.user._id; // User ID from authentication
+
 
         // Find the list and verify owner or contributor
         const list = await List.findById(listId);
