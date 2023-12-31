@@ -15,6 +15,10 @@ const listSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  items: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Item'
+  }],
   status: {
     type: String,
     default: 'Active' // Default status is 'Active'

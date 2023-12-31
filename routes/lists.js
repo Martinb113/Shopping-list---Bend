@@ -1,6 +1,7 @@
 const express = require('express');
 const List = require('../models/list'); // Replace when change if path occures
 const User = require('../models/user');
+const Item = require('../models/item');
 const router = express.Router();
 
 /*require('dotenv').config();
@@ -28,6 +29,7 @@ const authenticate = async (req, res, next) => {
 };
 
 // Create a List
+
 router.post('/create', authenticate, async (req, res) => {
     /*if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -35,17 +37,33 @@ router.post('/create', authenticate, async (req, res) => {
 */
 
 router.post('/create', async (req, res) => {
-
     const { title, contributors, items, owner } = req.body;
+
     const newList = new List({
         title,
-        owner, //req.user._id, // Owner's ID from request body
+        owner,
         contributors: contributors || [], // Optional contributors
-        items: items || [] // Optional items
+        items: [] // Initialize items as an empty array
     });
 
     try {
         await newList.save();
+
+        // Create items in the database and get their IDs
+        const itemIds = await Promise.all(items.map(async (itemName) => {
+            const newItem = new Item({
+                name: itemName,
+                listId: newList._id, // Set listId to the _id of the List document
+                quantity: 1 // Set quantity to 1 or another default value
+            });
+            await newItem.save();
+            return newItem._id;
+        }));
+
+        // Update the List document with the IDs of the Item documents
+        newList.items = itemIds;
+        await newList.save();
+
         res.status(201).json({
             list: newList,
             success: true,
@@ -172,7 +190,7 @@ router.delete('/delete/:id',  async (req, res) => {
     }
 });
 
-//Mark List as Completed
+//Mark List as Completedss
 router.put('/archive/:id', async (req, res) => {
     try {
         const listId = req.params.id;
