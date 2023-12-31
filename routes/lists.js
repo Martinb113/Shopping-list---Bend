@@ -5,21 +5,41 @@ const router = express.Router();
 
 // I dont have a middleware to authenticate and set req.user, this needsto be sorted
 // ...
+/*
+const authenticate = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization').replace('Bearer ', '');
+        const decoded = jwt.verify(token, 'your_jwt_secret');
+        const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
+
+        if (!user) {
+            throw new Error();
+        }
+
+        req.token = token;
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).send({ error: 'Please authenticate.' });
+    }
+};
 
 // Create a List
-router.post('/create', async (req, res) => {
+router.post('/create', authenticate, async (req, res) => {
     /*if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
     */
 
-const { title, contributors, items, owner } = req.body;
-const newList = new List({
-    title,
-    owner, // Owner's ID from request body
-    contributors: contributors || [], // Optional contributors
-    items: items || [] // Optional items
-});
+router.post('/create', async (req, res) => {
+
+    const { title, contributors, items, owner } = req.body;
+    const newList = new List({
+        title,
+        owner, // Owner's ID from request body
+        contributors: contributors || [], // Optional contributors
+        items: items || [] // Optional items
+    });
 
     try {
         await newList.save();
@@ -38,7 +58,8 @@ const newList = new List({
 // Get Lists by User
 router.get('/list', async (req, res) => {
     try {
-        const userId = req.user._id; // Assuming user ID is available in the request
+        // const userId = req.user._id; // Assuming user ID is available in the request
+        const userId = req.query.userId; // Get user ID from query parameters
 
         // Fetch lists where user is the owner
         const ownerLists = await List.find({ owner: userId });
