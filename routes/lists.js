@@ -172,7 +172,7 @@ router.delete('/delete/:id',  async (req, res) => {
     }
 });
 
-//Mark Item as Completed
+//Mark List as Completed
 router.put('/archive/:id', async (req, res) => {
     try {
         const listId = req.params.id;

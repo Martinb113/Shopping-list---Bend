@@ -15,7 +15,11 @@ const itemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'List',
     required: true
-  }
+  },
+  archived: {
+    type: Boolean,
+    default: false
+}
   // Add any additional fields as per your requirement
 });
 

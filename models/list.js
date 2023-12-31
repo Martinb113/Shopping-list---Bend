@@ -14,8 +14,12 @@ const listSchema = new mongoose.Schema({
   contributors: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
-  // I am able to add anything here, Contributors for example
+  }],
+  status: {
+    type: String,
+    default: 'Active' // Default status is 'Active'
+}
+  // I am able to add anything here, 
 });
 
 const List = mongoose.model('List', listSchema);
