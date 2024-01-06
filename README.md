@@ -1,59 +1,31 @@
-### Completed Tasks
-1. **Initial Project Setup**
-   - Setting up Node.js and Express.js.
-   - Basic server setup with `server.js`.
-   - Installation of primary packages like `express`, `mongoose`, `body-parser`, and `cors`.
-
-2. **Database Connection** - still not working properly
-   - MongoDB connection established using Mongoose in `server.js`.
-   - Usage of environment variables for secure connection string handling.
-
-3. **Basic Route Setup**
-   - Creation of basic route files (`users.js`, `lists.js`, `items.js`).
-
-4. **Models**
-   - `User` model has been created and aligned with your schema.
-   - Guidance provided for creating `List` and `Item` models.
-
-5. **Environment Configuration**
-   - Setup of `.env` file for managing environment variables like database connection strings.
-
-6. **Complete Models Implementation**
-   - Finalize and implement the `List` and `Item` models as per the provided schema.
-
-7. **Route Logic Implementation** - Partially implemented
-    - Implement the CRUD operations and business logic in the routes (`users.js`, `lists.js`)
-
-8. **User Authentication and Authorization**
-   - Implement user registration and login functionality.
-
-9. **Roles and Permissions**
-   - Partially done - inlist I have done this for `Create a List` & `Update a List`.
-
-10. **Error Handling** - Partially done
-   - Implement comprehensive error handling across the application.
-
-
-
-
-### Tasks to be Completed, redone or checked
-
-2. **Route Logic Implementation**
-   - Implement the CRUD operations and business logic in the routes (`items.js`).
-
-3. **User Authentication and Authorization**
-   - Setup JSON Web Token (JWT) or another authentication mechanism for protecting routes.
-
-4. **Roles and Permissions**
-   - Implement logic to handle 'Owner' and 'Contributor' roles in the `List` model
-        - remaining: `Delete a List`, `Add Item to Shopping List`, `Mark Item as Completed`.
-   - Ensure that API routes check for proper permissions based on these roles.
-
-5. **Input Validation and Sanitization**
-   - Integrate input validation and sanitization in the routes to ensure data integrity and security.
-
-6. **Error Handling**
-   - Implement comprehensive error handling across the application.
-
-7. **Testing**
-   - Test all API endpoints, ensuring they work as expected and handle errors properly.
+Sample Test Scenarios
+a) Reading Lists (Happy Path)
+Test: Fetch all lists for a given user.
+Expected Result: Returns a 200 status with a list of lists in the response body.
+b) Reading Lists (Error Handling)
+Test: Fetch all lists with an invalid user ID.
+Expected Result: Returns a 404 status or an empty list, depending on how you handle this case in your API.
+c) Reading a Single List (Happy Path)
+Test: Fetch a single list by its ID.
+Expected Result: Returns a 200 status with the list details in the response body.
+d) Reading a Single List (Error Handling)
+Test: Fetch a list with a non-existent ID.
+Expected Result: Returns a 404 status with an error message.
+e) Creating a List (Happy Path)
+Test: Create a new list with valid data.
+Expected Result: Returns a 201 status with the created list's details.
+f) Creating a List (Error Handling)
+Test: Try to create a list with invalid or incomplete data.
+Expected Result: Returns a 400 status with an error message.
+g) Updating a List (Happy Path)
+Test: Update a list with valid data.
+Expected Result: Returns a 200 status with the updated list's details.
+h) Updating a List (Error Handling)
+Test: Update a non-existent list or with invalid data.
+Expected Result: Returns a 404 status for a non-existent list or 400 for invalid data.
+i) Deleting a List (Happy Path)
+Test: Delete a list by its ID.
+Expected Result: Returns a 200 status with a success message.
+j) Deleting a List (Error Handling)
+Test: Try to delete a non-existent list.
+Expected Result: Returns a 404 status with an error message.

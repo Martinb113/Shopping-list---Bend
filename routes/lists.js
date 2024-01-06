@@ -101,7 +101,7 @@ router.get('/list', async (req, res) => {
             message: 'Shopping lists retrieved successfully'
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(404).json({ success: false, message: error.message });
     }
 });
 
