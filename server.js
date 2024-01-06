@@ -3,7 +3,7 @@ require('dotenv').config();
 // Then, require mongoose
 const mongoose = require('mongoose');
 // Connect to MongoDB using environment variable
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.TEST_MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })   //=mongodb+srv: //martinb113:<password>@cluster0.wzely8a.mongodb.net/?retryWrites=true&w=majority)
