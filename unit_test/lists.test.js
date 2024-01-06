@@ -18,22 +18,61 @@ describe('GET /api/lists/list', () => {
       expect(response.statusCode).toBe(404); // Or another appropriate status code
       // Additional assertions for error response
     }, 100000);
+  });
+  
+  describe('POST /api/lists/create', () => {
+    it('should create a list with valid data', async () => {
+      const newListData = {
+        title: "Grocery List",
+        owner: "65909b9e51b1f4f71c2b9a8b",
+        contributors: [],
+        items: []
+      };
+  
+      const response = await request(app).post('/api/lists/create').send(newListData);
+      expect(response.statusCode).toBe(201);
+      expect(response.body).toHaveProperty('list');
+      expect(response.body.list).toHaveProperty('_id');
+      // Additional assertions as needed
+    }, 100000);
+
+    it('should not create a list with missing title', async () => {
+      const invalidListData = {
+        // Missing title
+        owner: "validUserId",
+        contributors: ["contributorId"],
+        items: ["item1", "item2"]
+      };
     
-    describe('POST /api/lists/create', () => {
-      it('should create a list with valid data', async () => {
-        const newListData = {
-          title: "Grocery List",
-          owner: "65909b9e51b1f4f71c2b9a8b",
-          contributors: [],
-          items: []
-        };
+      const response = await request(app).post('/api/lists/create').send(invalidListData);
+      expect(response.statusCode).toBe(500); // Or appropriate error code
+      // Additional assertions for error message
+    }); 
+
+    it('should not create a list with invalid user id (owner)', async () => {
+      const invalidListData = {
+        title: "Grocery List",
+        owner: "65909b9e51b1f4f71c2b9a8",
+        contributors: ["contributorId"],
+        items: ["item1", "item2"]
+      };
     
-        const response = await request(app).post('/api/lists/create').send(newListData);
-        expect(response.statusCode).toBe(201);
-        expect(response.body).toHaveProperty('list');
-        expect(response.body.list).toHaveProperty('_id');
-        // Additional assertions as needed
-      }, 100000);
-});
+      const response = await request(app).post('/api/lists/create').send(invalidListData);
+      expect(response.statusCode).toBe(500); // Or appropriate error code
+      // Additional assertions for error message
+    }); 
+
+    it('should not create a list with invalid user id (contributor)', async () => {
+      const invalidListData = {
+        title: "Grocery List",
+        owner: "65909b9e51b1f4f71c2b9a8b",
+        contributors: ["65909b9e51b1f4f71c2b9a8"],
+        items: ["item1", "item2"]
+      };
+    
+      const response = await request(app).post('/api/lists/create').send(invalidListData);
+      expect(response.statusCode).toBe(500); // Or appropriate error code
+      // Additional assertions for error message
+    }); 
 
 });
