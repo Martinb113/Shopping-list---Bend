@@ -11,6 +11,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+require('dotenv').config();npm test
 // Choose the right database URI
 const dbURI = process.env.NODE_ENV === 'test' ? process.env.TEST_MONGODB_URI : process.env.MONGODB_URI;
 

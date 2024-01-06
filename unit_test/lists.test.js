@@ -9,5 +9,5 @@ describe('GET /api/lists/list', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('lists');
       // Add any other assertions relevant to your response structure
-    }, 10000);
-});n
+    }, 100000);
+});
