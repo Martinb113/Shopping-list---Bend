@@ -20,6 +20,16 @@ describe('Item Routes', () => {
       createdItemId = response.body.itemId;
     });
 
+    it('should not add an item with missing name', async () => {
+      const newItem = {
+        // name is missing
+        quantity: 2,
+        listId: "6590af78a03d2ec4dd09930d"
+      };
+      const response = await request(app).post('/api/items/').send(newItem);
+      expect(response.statusCode).toBe(500); // Assuming 400 for bad request
+    });
+
     // ... Add tests for error scenarios ...
   });
 
@@ -29,6 +39,11 @@ describe('Item Routes', () => {
       const response = await request(app).get(`/api/items/list/60d3b41c8534a2d3357d5f3b`); //${createdListId}
       expect(response.statusCode).toBe(200);
       expect(Array.isArray(response.body)).toBeTruthy();
+    });
+
+    it('should not retrieve items for a non-existent list', async () => {
+      const response = await request(app).get(`/api/items/list/nonExistentListId`);
+      expect(response.statusCode).toBe(500);
     });
 
     // ... Add tests for error scenarios ...
@@ -42,9 +57,15 @@ describe('Item Routes', () => {
         quantity: 1
       };
 
-      const response = await request(app).put(`/api/items/update/659a51a0e4b26b160f05cc9e`).send(updatedItem);
+      const response = await request(app).put(`/api/items/update/${createdItemId}`).send(updatedItem);
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('message', 'Item updated successfully');
+    });
+
+    it('should not update a non-existent item', async () => {
+      const updatedItem = { name: 'Bread', quantity: 1 };
+      const response = await request(app).put(`/api/items/update/nonExistentItemId`).send(updatedItem);
+      expect(response.statusCode).toBe(500);
     });
 
     // ... Add tests for error scenarios ...
@@ -56,9 +77,14 @@ describe('Item Routes', () => {
       const userId = "65909b9e51b1f4f71c2b9a8b"; // Replace with a valid user ID
 
 
-      const response = await request(app).put(`/api/items/complete/659a51a0e4b26b160f05cc9e`).send({ userId });
+      const response = await request(app).put(`/api/items/complete/${createdItemId}`).send({ userId });
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('message', 'Item marked as completed');
+    });
+
+    it('should not mark a non-existent item as completed', async () => {
+      const response = await request(app).put(`/api/items/complete/nonExistentItemId`).send({ userId: "65909b9e51b1f4f71c2b9a8b" });
+      expect(response.statusCode).toBe(500);
     });
 
     // ... Add tests for error scenarios ...
@@ -67,10 +93,16 @@ describe('Item Routes', () => {
   // Delete an Item
   describe('DELETE /api/items/delete/:itemId', () => {
     it('should delete the specified item', async () => {
-      const response = await request(app).delete(`/api/items/delete/659a5748243370758c06ba21`); //${createdItemId}
+      const response = await request(app).delete(`/api/items/delete/${createdItemId}`); //${createdItemId}
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('message', 'Item deleted successfully');
     });
+
+    it('should not delete a non-existent item', async () => {
+      const response = await request(app).delete(`/api/items/delete/nonExistentItemId`);
+      expect(response.statusCode).toBe(500);
+    });
+    
 
     // ... Add tests for error scenarios ...
   });
