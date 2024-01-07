@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 
 const mongoURI = process.env.MONGODB_URI; // Get the connection string from the .env file
 
-/*mongoose.connect(mongoURI, {
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});*/
+});
 
 const db = mongoose.connection;
 
